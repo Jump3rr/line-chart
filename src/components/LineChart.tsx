@@ -13,6 +13,7 @@ interface Datum {
 }
 
 const LineChart = () => {
+  const [backgroundColorIndex, setBackgroundColorIndex] = useState(0);
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -55,6 +56,24 @@ const LineChart = () => {
       .attr('stroke', 'steelblue')
       .attr('stroke-width', 2);
 
+    g.append('g')
+      .attr('class', 'grid')
+      .call(
+        d3
+          .axisLeft(yScale)
+          .tickSize(-width)
+          .tickFormat(() => '')
+      );
+    g.append('g')
+      .attr('class', 'grid')
+      .attr('transform', `translate(0, ${height})`)
+      .call(
+        d3
+          .axisBottom(xScale)
+          .tickSize(-height)
+          .tickFormat(() => '')
+      );
+
     g.selectAll('circle')
       .data(data)
       .enter()
@@ -92,6 +111,21 @@ const LineChart = () => {
       });
   }, [data]);
 
+  const backgroundColors = [
+    '#f0f0f0',
+    '#045c10',
+    '#791111',
+    '#4e4e4e',
+    '#9dc3ee',
+    '#ffca57',
+  ];
+
+  const handleBackgroundColorChange = () => {
+    setBackgroundColorIndex(
+      (backgroundColorIndex + 1) % backgroundColors.length
+    );
+  };
+
   return (
     <>
       <div className='svg-con'>
@@ -99,8 +133,10 @@ const LineChart = () => {
           ref={svgRef}
           width={window.innerWidth / 2}
           height={window.innerHeight / 2}
+          style={{ backgroundColor: backgroundColors[backgroundColorIndex] }}
         ></svg>
       </div>
+      <button onClick={handleBackgroundColorChange}>Change Color</button>
     </>
   );
 };
