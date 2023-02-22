@@ -62,7 +62,34 @@ const LineChart = () => {
       .attr('cx', (d) => xScale(d.x))
       .attr('cy', (d) => yScale(d.y))
       .attr('r', 5)
-      .attr('fill', 'steelblue');
+      .attr('fill', 'steelblue')
+      .on('mouseover', (event, d) => {
+        const x = xScale(d.x);
+        const y = yScale(d.y);
+        g.append('line')
+          .attr('class', 'x-line')
+          .attr('x1', x)
+          .attr('y1', y)
+          .attr('x2', x)
+          .attr('y2', height)
+          .attr('stroke', 'red')
+          .attr('stroke-dasharray', '10')
+          .attr('stroke-width', '3');
+
+        g.append('line')
+          .attr('class', 'y-line')
+          .attr('x1', x)
+          .attr('y1', y)
+          .attr('x2', 0)
+          .attr('y2', y)
+          .attr('stroke', 'red')
+          .attr('stroke-dasharray', '10')
+          .attr('stroke-width', '3');
+      })
+      .on('mouseout', (event, d) => {
+        svg.selectAll('.x-line').remove();
+        svg.selectAll('.y-line').remove();
+      });
   }, [data]);
 
   return (
