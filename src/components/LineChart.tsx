@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import data from '../data/data.json';
 import { D3ZoomEvent } from 'd3';
+import { backgroundColors } from '../data/backgroundColors';
 import './LineChart.css';
+import { MoonLoader } from 'react-spinners';
 
 interface Datum {
   id: number;
@@ -15,33 +17,36 @@ interface Datum {
 
 const LineChart = () => {
   const [backgroundColorIndex, setBackgroundColorIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
   const svgRef = useRef<SVGSVGElement>(null);
+  const handleZoom = (e: D3ZoomEvent<SVGElement, unknown>) => {
+    d3.select(svgRef.current).attr('transform', e.transform.toString());
+  };
 
-  useEffect(() => {
+  const zoom = d3
+    .zoom<SVGSVGElement, unknown>()
+    .scaleExtent([1, 2])
+    .translateExtent([
+      [-window.innerWidth / 4, -window.innerHeight / 4],
+      [window.innerWidth / 2, window.innerHeight / 2],
+    ])
+    .on('zoom', handleZoom);
+
+  const initZoom = () => {
+    d3.select(svgRef.current!).call(zoom);
+  };
+
+  const generateChart = () => {
     const svg = d3.select(svgRef.current);
+    console.log(svg);
+    if (!svg) return;
+
     const margin = { top: 50, right: 50, bottom: 50, left: 50 };
     const width = Number(svg.attr('width')) - margin.left - margin.right;
     const height = Number(svg.attr('height')) - margin.top - margin.bottom;
     const g = svg
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
-    let zoom = d3
-      .zoom<SVGSVGElement, unknown>()
-      .scaleExtent([1, 2])
-      .translateExtent([
-        [-100, -100],
-        [window.innerWidth / 2, window.innerHeight / 2],
-      ])
-      .on('zoom', handleZoom);
-
-    function handleZoom(e: D3ZoomEvent<SVGElement, unknown>) {
-      d3.select(svgRef.current).attr('transform', e.transform.toString());
-    }
-
-    function initZoom() {
-      d3.select(svgRef.current!).call(zoom);
-    }
-
     const xScale = d3
       .scaleLinear()
       .domain([
@@ -58,7 +63,6 @@ const LineChart = () => {
     g.append('g')
       .attr('transform', `translate(0, ${height})`)
       .call(d3.axisBottom(xScale));
-
     g.append('g').call(d3.axisLeft(yScale));
 
     const lineGenerator = d3
@@ -111,7 +115,6 @@ const LineChart = () => {
           .attr('stroke', 'red')
           .attr('stroke-dasharray', '10')
           .attr('stroke-width', '3');
-
         g.append('line')
           .attr('class', 'y-line')
           .attr('x1', x)
@@ -126,17 +129,19 @@ const LineChart = () => {
         svg.selectAll('.x-line').remove();
         svg.selectAll('.y-line').remove();
       });
-    initZoom();
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
   }, [data]);
 
-  const backgroundColors = [
-    '#f0f0f0',
-    '#045c10',
-    '#791111',
-    '#4e4e4e',
-    '#9dc3ee',
-    '#ffca57',
-  ];
+  useEffect(() => {
+    if (loading) return;
+    generateChart();
+    initZoom();
+  }, [loading]);
 
   const handleBackgroundColorChange = () => {
     setBackgroundColorIndex(
@@ -145,17 +150,27 @@ const LineChart = () => {
   };
 
   return (
-    <>
-      <div className='svg-con'>
-        <svg
-          ref={svgRef}
-          width={window.innerWidth / 2}
-          height={window.innerHeight / 2}
-          style={{ backgroundColor: backgroundColors[backgroundColorIndex] }}
-        ></svg>
-      </div>
-      <button onClick={handleBackgroundColorChange}>Change Color</button>
-    </>
+    <div className='container'>
+      {loading ? (
+        <>
+          <MoonLoader color='#003a61' loading={loading} size={150} />
+        </>
+      ) : (
+        <>
+          <div className='svg-con'>
+            <svg
+              ref={svgRef}
+              width={window.innerWidth / 2}
+              height={window.innerHeight / 2}
+              style={{
+                backgroundColor: backgroundColors[backgroundColorIndex],
+              }}
+            ></svg>
+          </div>
+          <button onClick={handleBackgroundColorChange}>Change Color</button>
+        </>
+      )}
+    </div>
   );
 };
 
