@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/line-chart/static/css/main.f870f2f5.css",
+    "main.js": "/line-chart/static/js/main.72501143.js",
+    "index.html": "/line-chart/index.html",
+    "main.f870f2f5.css.map": "/line-chart/static/css/main.f870f2f5.css.map",
+    "main.72501143.js.map": "/line-chart/static/js/main.72501143.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f870f2f5.css",
+    "static/js/main.72501143.js"
+  ]
+}
