@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import data from '../data/data.json';
+import { D3ZoomEvent } from 'd3';
 import './LineChart.css';
 
 interface Datum {
@@ -24,6 +25,22 @@ const LineChart = () => {
     const g = svg
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
+    let zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([1, 2])
+      .translateExtent([
+        [-100, -100],
+        [window.innerWidth / 2, window.innerHeight / 2],
+      ])
+      .on('zoom', handleZoom);
+
+    function handleZoom(e: D3ZoomEvent<SVGElement, unknown>) {
+      d3.select(svgRef.current).attr('transform', e.transform.toString());
+    }
+
+    function initZoom() {
+      d3.select(svgRef.current!).call(zoom);
+    }
 
     const xScale = d3
       .scaleLinear()
@@ -109,6 +126,7 @@ const LineChart = () => {
         svg.selectAll('.x-line').remove();
         svg.selectAll('.y-line').remove();
       });
+    initZoom();
   }, [data]);
 
   const backgroundColors = [
