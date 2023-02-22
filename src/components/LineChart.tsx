@@ -38,9 +38,6 @@ const LineChart = () => {
 
   const generateChart = () => {
     const svg = d3.select(svgRef.current);
-    console.log(svg);
-    if (!svg) return;
-
     const margin = { top: 50, right: 50, bottom: 50, left: 50 };
     const width = Number(svg.attr('width')) - margin.left - margin.right;
     const height = Number(svg.attr('height')) - margin.top - margin.bottom;
@@ -125,7 +122,7 @@ const LineChart = () => {
           .attr('stroke-dasharray', '10')
           .attr('stroke-width', '3');
       })
-      .on('mouseout', (event, d) => {
+      .on('mouseout', (event) => {
         svg.selectAll('.x-line').remove();
         svg.selectAll('.y-line').remove();
       });
@@ -167,7 +164,9 @@ const LineChart = () => {
               }}
             ></svg>
           </div>
-          <button onClick={handleBackgroundColorChange}>Change Color</button>
+          <button id='bg-color-btn' onClick={handleBackgroundColorChange}>
+            Change Color
+          </button>
         </>
       )}
     </div>
